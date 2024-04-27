@@ -33,6 +33,7 @@ func main() {
 		for _, file := range composeFiles {
 			if info.Name() == file {
 				// Found a Compose file, perform update operations
+				fmt.Println("Found Compose file at", path)
 				err := updateCompose(filepath.Dir(path))
 				if err != nil {
 					fmt.Printf("Error updating compose at %s: %v\n", path, err)
