@@ -67,7 +67,7 @@ func updateCompose(dir string) error {
 	}
 
 	// Determine the Compose command based on the Docker version
-	composeCmd := "/usr/bin/docker compose"
+	composeCmd := "docker compose"
 	if strings.Contains(string(out), "version 1.") {
 		composeCmd = "docker-compose"
 	}
