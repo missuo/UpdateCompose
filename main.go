@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -57,11 +58,23 @@ func updateCompose(dir string) error {
 		return err
 	}
 
-	// Execute docker compose commands in sequence
+	// Check the Docker version
+	out, err := exec.Command("docker", "--version").Output()
+	if err != nil {
+		return fmt.Errorf("error checking Docker version: %v", err)
+	}
+
+	// Determine the Compose command based on the Docker version
+	composeCmd := "docker compose"
+	if strings.Contains(string(out), "version 1.") {
+		composeCmd = "docker-compose"
+	}
+
+	// Execute Docker Compose commands in sequence
 	for _, cmd := range []string{"stop", "pull", "up -d"} {
-		out, err := exec.Command("docker", "compose", cmd).CombinedOutput()
+		out, err := exec.Command(composeCmd, strings.Split(cmd, " ")...).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("error running 'docker compose %s': %v, output: %s", cmd, err, out)
+			return fmt.Errorf("error running '%s %s': %v, output: %s", composeCmd, cmd, err, out)
 		}
 	}
 
