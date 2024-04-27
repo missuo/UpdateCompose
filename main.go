@@ -1,14 +1,3 @@
-/*
- * @Author: Vincent Yang
- * @Date: 2024-04-26 21:35:37
- * @LastEditors: Vincent Yang
- * @LastEditTime: 2024-04-26 21:36:13
- * @FilePath: /UpdateCompose/main.go
- * @Telegram: https://t.me/missuo
- * @GitHub: https://github.com/missuo
- *
- * Copyright © 2024 by Vincent, All Rights Reserved.
- */
 package main
 
 import (
@@ -31,7 +20,12 @@ func main() {
 	// Walk the root directory to find Compose files
 	err := filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return filepath.SkipDir
+		}
+
+		// Skip the /proc directory
+		if info.IsDir() && info.Name() == "proc" {
+			return filepath.SkipDir
 		}
 
 		// Check if the file name matches any of the Compose file names
