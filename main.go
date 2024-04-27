@@ -57,26 +57,19 @@ func updateCompose(dir string) error {
 	// Change to the directory containing the Compose file
 	err := os.Chdir(dir)
 	if err != nil {
-		return err
+		return fmt.Errorf("error changing directory to %s: %v", dir, err)
 	}
 
-	// Check the Docker version
-	out, err := exec.Command("docker", "--version").Output()
-	if err != nil {
-		return fmt.Errorf("error checking Docker version: %v", err)
-	}
-
-	// Determine the Compose command based on the Docker version
-	composeCmd := "docker compose"
-	if strings.Contains(string(out), "version 1.") {
-		composeCmd = "docker-compose"
-	}
+	// Use the absolute path of the docker compose command
+	composeCmd := "docker"
+	composeCmdArgs := []string{"compose"}
 
 	// Execute Docker Compose commands in sequence
 	for _, cmd := range []string{"stop", "pull", "up -d"} {
-		out, err := exec.Command(composeCmd, strings.Split(cmd, " ")...).CombinedOutput()
+		fmt.Printf("Running command: %s %s %s\n", composeCmd, strings.Join(composeCmdArgs, " "), cmd)
+		out, err := exec.Command(composeCmd, append(composeCmdArgs, strings.Split(cmd, " ")...)...).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("error running '%s %s': %v, output: %s", composeCmd, cmd, err, out)
+			return fmt.Errorf("error running '%s %s %s': %v, output: %s", composeCmd, strings.Join(composeCmdArgs, " "), cmd, err, string(out))
 		}
 	}
 
