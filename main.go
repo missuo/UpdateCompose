@@ -33,12 +33,13 @@ func main() {
 		for _, file := range composeFiles {
 			if info.Name() == file {
 				// Found a Compose file, perform update operations
-				fmt.Println("Found Compose file at", path)
-				err := updateCompose(filepath.Dir(path))
+				dir := filepath.Dir(path)
+				fmt.Println("Found Compose file in directory", dir)
+				err := updateCompose(dir)
 				if err != nil {
-					fmt.Printf("Error updating compose at %s: %v\n", path, err)
+					fmt.Printf("Error updating compose in %s: %v\n", dir, err)
 				} else {
-					fmt.Printf("Updated compose at %s\n", path)
+					fmt.Printf("Updated compose in %s\n", dir)
 				}
 				break
 			}
@@ -66,7 +67,7 @@ func updateCompose(dir string) error {
 	}
 
 	// Determine the Compose command based on the Docker version
-	composeCmd := "docker compose"
+	composeCmd := "/usr/bin/docker compose"
 	if strings.Contains(string(out), "version 1.") {
 		composeCmd = "docker-compose"
 	}
