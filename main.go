@@ -1,6 +1,19 @@
+/*
+ * @Author: Vincent Yang
+ * @Date: 2024-04-27 09:35:37
+ * @LastEditors: Vincent Yang
+ * @LastEditTime: 2024-05-28 11:52:06
+ * @FilePath: /UpdateCompose/main.go
+ * @Telegram: https://t.me/missuo
+ * @GitHub: https://github.com/missuo
+ *
+ * Copyright © 2024 by Vincent, All Rights Reserved.
+ */
+
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,6 +31,14 @@ func main() {
 	// Define the Compose file names to search for
 	composeFiles := []string{"compose.yaml", "docker-compose.yaml", "docker-compose.yml", "compose.yml"}
 
+	// Parse command line arguments for include and exclude
+	includeDirs := flag.String("include", "", "Comma-separated list of directories to include")
+	excludeDirs := flag.String("exclude", "", "Comma-separated list of directories to exclude")
+	flag.Parse()
+
+	includeList := strings.Split(*includeDirs, ",")
+	excludeList := strings.Split(*excludeDirs, ",")
+
 	// Walk the root directory to find Compose files
 	err := filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -29,11 +50,33 @@ func main() {
 			return filepath.SkipDir
 		}
 
+		// Skip excluded directories
+		for _, exclude := range excludeList {
+			if strings.HasPrefix(path, exclude) {
+				return filepath.SkipDir
+			}
+		}
+
 		// Check if the file name matches any of the Compose file names
 		for _, file := range composeFiles {
 			if info.Name() == file {
-				// Found a Compose file, perform update operations
 				dir := filepath.Dir(path)
+
+				// Check if the directory is in the include list, if specified
+				if len(includeList) > 0 {
+					included := false
+					for _, include := range includeList {
+						if strings.HasPrefix(dir, include) {
+							included = true
+							break
+						}
+					}
+					if !included {
+						return nil
+					}
+				}
+
+				// Found a Compose file, perform update operations
 				fmt.Println("Found Compose file in directory", dir)
 				err := updateCompose(dir)
 				if err != nil {
