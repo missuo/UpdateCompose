@@ -4,7 +4,7 @@
 ## Install
 
 ```bash
-bash <(curl -Ls https://owo.nz/update-compose)
+bash <(curl -Ls https://ssa.sx/update-compose)
 ```
 
 
